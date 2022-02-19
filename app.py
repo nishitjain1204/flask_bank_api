@@ -32,14 +32,13 @@ class ACCOUNTS(db.Model):
 class PostSchema(ma.Schema):
     class Meta:
         fields = (
-            "ID",
-            "ACC_NUM" ,
-    "DATE_" ,
-    "TRANS_DETAILS" ,
-    "WITHDRAWAL_AMT" ,
-    "VALUE_DATE" ,
-    "DEPOSIT_AMT" ,
-    "BALANCE_AMT"
+            "ID","Account No",
+        "Date",
+        "Transaction Details",
+        "Value Date",
+        "Withdrawal AMT",
+        "Deposit AMT",
+        "Balance AMT"
         )
         model = ACCOUNTS
 
