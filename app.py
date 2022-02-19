@@ -15,38 +15,38 @@ api = Api(app)
 
 
 
-class ACCOUNTS(db.Model):
-    ID  = db.Column(db.Integer , primary_key = True)
-    ACC_NUM = db.Column(db.Integer)
-    DATE_ = db.Column(db.String(50))
-    TRANS_DETAILS = db.Column(db.String(255))
-    VALUE_DATE = db.Column(db.String(50))
-    WITHDRAWAL_AMT = db.Column(db.String(50))
-    DEPOSIT_AMT = db.Column(db.String(50))
-    BALANCE_AMT = db.Column(db.String(50))
+class Transactions(db.Model):
+    ID  = db.Column("ID",db.Integer , primary_key = True)
+    ACC_NUM = db.Column("Account No",db.Integer)
+    DATE_ = db.Column("Date",db.String(50))
+    TRANS_DETAILS = db.Column("Transaction Details",db.String(255))
+    VALUE_DATE = db.Column("Value Date",db.String(50))
+    WITHDRAWAL_AMT = db.Column("Withdrawal AMT",db.String(50))
+    DEPOSIT_AMT = db.Column("Deposit AMT",db.String(50))
+    BALANCE_AMT = db.Column( "Balance AMT",db.String(50))
 
     def __repr__(self):
-        return '<Account %s>' % self.ACC_NUM
+        return '<Transaction %s>' % self.ACC_NUM
 
 
 class PostSchema(ma.Schema):
     class Meta:
         fields = (
-            "ID","Account No",
-        "Date",
-        "Transaction Details",
-        "Value Date",
-        "Withdrawal AMT",
-        "Deposit AMT",
-        "Balance AMT"
+            "ID","ACC_NUM",
+        "DATE_",
+        "TRANS_DETAILS",
+        "VALUE_DATE",
+        "WITHDRAWAL_AMT",
+        "DEPOSIT_AMT",
+        "BALANCE_AMT"
         )
-        model = ACCOUNTS
+        model = Transactions
 
 post_schema = PostSchema()
 posts_schema = PostSchema(many=True)
     
 # 29-06-17
-class AccountsResourceByDate(Resource):
+class TransactionsByDate(Resource):
     def get(self,date):
         month_num = {1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'May', 6: 'Jun', 7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec'}
         date = date.split("-")
@@ -56,7 +56,7 @@ class AccountsResourceByDate(Resource):
             
             date = " ".join(date)
             
-            accounts = ACCOUNTS.query.filter_by(DATE_= date).all()
+            accounts = Transactions.query.filter_by(DATE_= date).all()
             return posts_schema.dump(accounts)
         else:
             return None
@@ -68,11 +68,22 @@ class AccountsResourceByDate(Resource):
         
         
 
-class AccountsListResource(Resource):
+class TransactionsList(Resource):
     def get(self):
-        accounts = ACCOUNTS.query.all()
-        print(accounts)
-        return posts_schema.dump(accounts)
+        transactions = Transactions.query.all()
+        print(transactions)
+        trans = posts_schema.dump(transactions)
+        for i in range(len(trans)):
+             
+            trans[i]["Account No"] = trans[i].pop("ACC_NUM")
+            trans[i]["Date"]= trans[i].pop("DATE_")
+            trans[i]["Transaction Details"]= trans[i].pop("TRANS_DETAILS")
+            trans[i]["Value Date"]= trans[i].pop( "VALUE_DATE")
+            trans[i]["Withdrawal AMT"]= trans[i].pop( "WITHDRAWAL_AMT")
+            trans[i]["Deposit AMT"]= trans[i].pop( "DEPOSIT_AMT")
+            trans[i]["Balance AMT"]= trans[i].pop("BALANCE_AMT")
+        return trans
+            
 
 
 class BalanceOnDate(Resource):
@@ -84,14 +95,37 @@ class BalanceOnDate(Resource):
             date[1] = month_num[int(date[1])]
             
             date = " ".join(date)
-            accounts = ACCOUNTS.query.filter_by(DATE_= date).all()
-            return posts_schema.dump(accounts)[-1].get("BALANCE_AMT")
-
+            transactions = Transactions.query.filter_by(DATE_= date).all()
+            trans = posts_schema.dump(transactions)[-1].get("BALANCE_AMT")
+            for i in range(len(trans)):
+                 
+                trans[i]["Account No"] = trans[i].pop("ACC_NUM")
+                trans[i]["Date"]= trans[i].pop("DATE_")
+                trans[i]["Transaction Details"]= trans[i].pop("TRANS_DETAILS")
+                trans[i]["Value Date"]= trans[i].pop( "VALUE_DATE")
+                trans[i]["Withdrawal AMT"]= trans[i].pop( "WITHDRAWAL_AMT")
+                trans[i]["Deposit AMT"]= trans[i].pop( "DEPOSIT_AMT")
+                trans[i]["Balance AMT"]= trans[i].pop("BALANCE_AMT")
+            return trans
 class Details(Resource):
     def get(self,id):
-        accounts = ACCOUNTS.query.filter_by(ID = id).all()
+        transactions = Transactions.query.filter_by(ID = id).all()
         
-        return posts_schema.dump(accounts)[0] if accounts else None
+        trans = posts_schema.dump(transactions)
+        # print("trans" , trans)
+        if len(trans) > 0:
+            for i in range(len(trans)):
+                print(trans[i])
+                trans[i]["Account No"] = trans[i].pop("ACC_NUM") 
+                trans[i]["Date"]= trans[i].pop("DATE_")
+                trans[i]["Transaction Details"]= trans[i].pop("TRANS_DETAILS")
+                trans[i]["Value Date"]= trans[i].pop( "VALUE_DATE")
+                trans[i]["Withdrawal AMT"]= trans[i].pop( "WITHDRAWAL_AMT")
+                trans[i]["Deposit AMT"]= trans[i].pop( "DEPOSIT_AMT")
+                trans[i]["Balance AMT"]= trans[i].pop("BALANCE_AMT")
+            return trans
+        return trans
+            
 
 class PostTransaction(Resource):
     def post(self):
@@ -134,8 +168,8 @@ class PostTransaction(Resource):
                 if money.strip(" "):
                     return "Invalid " + label
         
-        accounts = ACCOUNTS.query.all()
-        new_acc = ACCOUNTS(
+        accounts = Transactions.query.all()
+        new_acc = Transactions(
             ID = len(accounts)+1,
             ACC_NUM  = post_data["Account No"],
     DATE_ = post_data["Date"],
@@ -158,8 +192,8 @@ class PostTransaction(Resource):
             
         
 
-api.add_resource(AccountsListResource, '/transactions')
-api.add_resource(AccountsResourceByDate, '/transactions/<string:date>')
+api.add_resource(TransactionsList, '/transactions')
+api.add_resource(TransactionsByDate, '/transactions/<string:date>')
 api.add_resource(BalanceOnDate , '/balance/<string:date>')
 api.add_resource(Details , '/details/<int:id>' )
 api.add_resource(PostTransaction ,'/add' )

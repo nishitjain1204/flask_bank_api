@@ -1798,17 +1798,17 @@ conn = sqlite3.connect('test.db')
 
 cursor = conn.cursor()
 
-# cursor.execute('''CREATE TABLE ACCOUNTS
+cursor.execute('''CREATE TABLE Transactions
                
-#         (ID integer primary key autoincrement,
-#             ACC_NUM  INTEGER,
-#         DATE_ TEXT,
-#         VALUE_DATE TEXT,
-#         TRANS_DETAILS TEXT,
-#         WITHDRAWAL_AMT TEXT,
-#         DEPOSIT_AMT TEXT,
-#         BALANCE_AMT TEXT
-#         );''')
+        (ID integer primary key autoincrement,
+            "Account No"  INTEGER,
+        "Date" TEXT,
+        "Value Date" TEXT,
+        "Transaction Details" TEXT,
+        "Withdrawal AMT" TEXT,
+         "Deposit AMT" TEXT,
+        "Balance AMT" TEXT
+        );''')
 
 # for accounts in data :
 #     cursor.execute(
@@ -1824,9 +1824,15 @@ cursor = conn.cursor()
 #     ) 
 
 cursor.executemany("""
-    INSERT INTO ACCOUNTS(
+    INSERT INTO Transactions(
             
-            ACC_NUM , DATE_ , TRANS_DETAILS , VALUE_DATE , WITHDRAWAL_AMT , DEPOSIT_AMT , BALANCE_AMT
+            "Account No" ,
+        "Date" ,
+        "Value Date" ,
+        "Transaction Details" ,
+        "Withdrawal AMT" ,
+         "Deposit AMT" ,
+        "Balance AMT" 
             
             )  
     VALUES
